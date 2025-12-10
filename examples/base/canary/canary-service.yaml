@@ -1,12 +1,27 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: canary-demo
+  name: canary-demo-nodeport-service
+  labels:
+    app: canary-demo
 spec:
-  ports:
-  - port: 80
-    targetPort: http
-    protocol: TCP
-    name: http
+  # The type must be set to NodePort to expose the service on each node's IP address and a static port.
+  type: NodePort 
+  
+  # The selector determines which Pods/Deployment this Service targets.
+  # It looks for Pods with the label 'app: canary-demo'.
   selector:
     app: canary-demo
+    
+  ports:
+    # Definition of the service port mapping
+    - name: http
+      # The internal cluster IP port (other services within the cluster use this port)
+      port: 80 
+      # The port on the container/Pod that the traffic is forwarded to.
+      targetPort: http 
+      # OPTIONAL: The port exposed on the Node's IP address. 
+      # This is the port you use to access the service from outside the cluster.
+      # If omitted, Kubernetes will automatically assign a port in the 30000-32767 range.
+      nodePort: 30080 
+      protocol: TCP
